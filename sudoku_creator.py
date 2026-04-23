@@ -26,23 +26,49 @@ class Sudoku:
     
     def gridCreator(self):
         arrLength = self.rows * self.columns
-        self.sudokuGrid = np.ones(arrLength).reshape((9, 9)) * 10
+        self.sudokuGrid = np.ones(arrLength).reshape((9, 9)) * 100
 
-        
         return self.sudokuGrid
     
     def checker(self):
-        for row_num in range(self.rows + 1):
-            for col_num in range(self.columns + 1):
+        for row_num in range(self.rows):
+            row_check = self.sudokuGrid[row_num][np.where(self.sudokuGrid[row_num] < 10)]
+            if len(np.unique(row_check)) != len(row_check):
+                return False
+        
+        for col_num in range(self.columns):
+            col_check = self.sudokuGrid[:, col_num][np.where(self.sudokuGrid[:, col_num] < 10)]
+            if len(np.unique(col_check)) != len(col_check):
+                return False
+        
+        index_list = [slice(0, 3), slice(3, 6), slice(6, 9)]
+        for i in index_list:
+            for j in index_list:
+                nine_group = self.sudokuGrid[i, j].flatten()
+                nine_check = nine_group[np.where(nine_group < 10)]
+                if len(np.unique(nine_check)) != len(nine_check):
+                    return False
+        
+        return True
 
-    
     def gridFiller(self):
         for _ in range(self.numStartVals):
-           randGridX = np.random.randint(self.rows + 1)
-           randGridY = np.random.randint(self.columns + 1)
+           ticker = True
+           while ticker:
+                randGridX = np.random.randint(self.rows)
+                randGridY = np.random.randint(self.columns)
+                randDigit = np.random.randint(10)
+                self.sudokuGrid[randGridX, randGridY] = randDigit
 
-           randDigit = np.random.randint(10)
+                if self.checker():
+                   ticker = False
+                else:
+                    self.sudokuGrid[randGridX, randGridY] = 100
+        
+        return self.sudokuGrid
 
 if __name__ == "__main__":
-    hard_puzzle = Sudoku(18)
-    print(hard_puzzle.gridCreator())
+    hard_puzzle = Sudoku(21)
+    hard_puzzle.gridCreator()
+    starting_hard_puzzle = hard_puzzle.gridFiller()
+    print(starting_hard_puzzle)
