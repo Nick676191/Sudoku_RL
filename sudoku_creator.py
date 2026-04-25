@@ -20,27 +20,32 @@ a random 0-9 integer satisfies these rules, then add it to the matrix.
 
 class Sudoku:
     def __init__(self, numStartVals):
+        # initialize the sudoku grid characteristics
         self.rows = 9
         self.columns = 9
         self.numStartVals = numStartVals
     
     def gridCreator(self):
+        # creating the sudoku grid object
         arrLength = self.rows * self.columns
         self.sudokuGrid = np.ones(arrLength).reshape((9, 9)) * 100
 
         return self.sudokuGrid
     
     def checker(self):
+        # check that each row only contains one value of the digits 0-9
         for row_num in range(self.rows):
             row_check = self.sudokuGrid[row_num][np.where(self.sudokuGrid[row_num] < 10)]
             if len(np.unique(row_check)) != len(row_check):
                 return False
         
+        # check that each column only contains one value of the digits 0-9
         for col_num in range(self.columns):
             col_check = self.sudokuGrid[:, col_num][np.where(self.sudokuGrid[:, col_num] < 10)]
             if len(np.unique(col_check)) != len(col_check):
                 return False
         
+        # check that each 3x3 grid within the sudoku grid only contains one value of the digits 0-9
         index_list = [slice(0, 3), slice(3, 6), slice(6, 9)]
         for i in index_list:
             for j in index_list:
@@ -49,25 +54,33 @@ class Sudoku:
                 if len(np.unique(nine_check)) != len(nine_check):
                     return False
         
+        # assuming that the grid follows the suduko rules if none of the checks above return a false value
         return True
 
     def gridFiller(self):
+        # looping through the range of the number of start values to fill the sudoku grid with all of those values
         for _ in range(self.numStartVals):
            ticker = True
            while ticker:
+                # initialize boolean that indicates if a number is going to be filled into a slot within the grid that has already been filled
                 same = False
                 randGridX = np.random.randint(self.rows)
                 randGridY = np.random.randint(self.columns)
                 randDigit = np.random.randint(10)
+                # if grid spot isn't already filled, fill it with randomly generated digit 0-9
                 if self.sudokuGrid[randGridX, randGridY] == 100:
                     self.sudokuGrid[randGridX, randGridY] = randDigit
                 else:
+                    # toggle variable to true if sudoku grid already has a digit 0-9 in the spot that has been genrated
                     same = True
 
+                # if the digit space is already filled, restart the while loop to generate a new space and number
                 if same:
                     continue
+                # if grid follows rules with new value, exit out of the while loop and move onto generating the next input value to the grid
                 elif self.checker():
                    ticker = False
+                # change input grid value back to 100 if it breaks one of the three sudoku rules above
                 else:
                     self.sudokuGrid[randGridX, randGridY] = 100
         
