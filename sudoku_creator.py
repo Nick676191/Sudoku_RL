@@ -55,12 +55,18 @@ class Sudoku:
         for _ in range(self.numStartVals):
            ticker = True
            while ticker:
+                same = False
                 randGridX = np.random.randint(self.rows)
                 randGridY = np.random.randint(self.columns)
                 randDigit = np.random.randint(10)
-                self.sudokuGrid[randGridX, randGridY] = randDigit
+                if self.sudokuGrid[randGridX, randGridY] == 100:
+                    self.sudokuGrid[randGridX, randGridY] = randDigit
+                else:
+                    same = True
 
-                if self.checker():
+                if same:
+                    continue
+                elif self.checker():
                    ticker = False
                 else:
                     self.sudokuGrid[randGridX, randGridY] = 100
@@ -68,7 +74,7 @@ class Sudoku:
         return self.sudokuGrid
 
 if __name__ == "__main__":
-    hard_puzzle = Sudoku(21)
+    hard_puzzle = Sudoku(18)
     hard_puzzle.gridCreator()
     starting_hard_puzzle = hard_puzzle.gridFiller()
     print(starting_hard_puzzle)
