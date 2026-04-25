@@ -1,2 +1,2 @@
 # Sudoku_RL
-Using reinforcement learning to solve sudoku puzzles
+Using search based algorithm and other greedy heuristics to solve sudoku puzzles
