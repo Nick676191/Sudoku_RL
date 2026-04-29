@@ -66,8 +66,8 @@ class Sudoku:
                 same = False
                 randGridX = np.random.randint(self.rows)
                 randGridY = np.random.randint(self.columns)
-                randDigit = np.random.randint(10)
-                # if grid spot isn't already filled, fill it with randomly generated digit 0-9
+                randDigit = np.random.randint(1, 10)
+                # if grid spot isn't already filled, fill it with randomly generated digit 1-9
                 if self.sudokuGrid[randGridX, randGridY] == 100:
                     self.sudokuGrid[randGridX, randGridY] = randDigit
                 else:

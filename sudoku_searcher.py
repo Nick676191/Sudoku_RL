@@ -33,13 +33,26 @@ def numRefiner(puzzle, row_index, col_index):
     nine_group = puzzle[index_list[iRow], index_list[jCol]].flatten()
     grid_nums = nine_group[np.where(nine_group < 10)]
 
-    fullNumSet = set(np.array([i for i in range(10)]))
+    fullNumSet = set(np.array([i for i in range(1, 10)]))
     refine = set(np.unique(np.concat([row_nums, col_nums, grid_nums])))
 
     return np.array(list(fullNumSet.difference(refine)))
 
+def recursive_filler(puzzle, indexes, index_pair_num):
+    row_num = indexes[index_pair_num][0]
+    col_num = indexes[index_pair_num][1]
+    nums = numRefiner(puzzle, row_num, col_num)
+    if len(nums) == 0:
+        return recursive_filler(puzzle, indexes, index_pair_num-1)
+    else:
+        puzzle[row_num, col_num] = np.random.choice(nums)
+        return puzzle
+
+index_list = np.where(starting_easy_puzzle > 10)
+empty_indexes = np.stack((index_list[0], index_list[1]), axis=-1)
+
+for pair_num in range(len(empty_indexes)):
+    current_puzzle = recursive_filler(starting_easy_puzzle, empty_indexes, pair_num)
 
 
-test = numRefiner(starting_easy_puzzle, 1, 4)
-print(test)
-print(np.random.choice(test))
+print(current_puzzle)
