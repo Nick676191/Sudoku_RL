@@ -89,5 +89,6 @@ class Sudoku:
 if __name__ == "__main__":
     hard_puzzle = Sudoku(18)
     hard_puzzle.gridCreator()
-    starting_hard_puzzle = hard_puzzle.gridFiller()
-    print(starting_hard_puzzle)
+    hard_puzzle_print = hard_puzzle.gridFiller()
+    print(hard_puzzle_print)
+    print(hard_puzzle.checker())
