@@ -372,7 +372,7 @@ def indexDeconflictor(puzzle, indexesList, gridDigit):
     row_indexes = [index[0] for index in indexesList]
     col_indexes = [index[1] for index in indexesList]
 
-    for blankCellIndex in blankGridCellsList:
+    for blankCellIndex in blankGridCellsList.copy():
         if (blankCellIndex[0] in row_indexes) or (blankCellIndex[1] in col_indexes):
             blankGridCellsList.remove(blankCellIndex)
     
@@ -383,13 +383,14 @@ def iterativeGridFiller(puzzle, presentDict, gridDict, numToFill):
     """Checking each 3x3 grid in the puzzle, filling each one, and updating the dictionary that holds all of the present indexes
     of the respective number in the sudoku puzzle currently"""
     numPresentGridDigits = presentDict.keys()
-    gridDictKeys = gridDict.keys()
-    for key in gridDictKeys:
+    # gridDictKeys = gridDict.keys()
+    for key in range(9):
         if key in numPresentGridDigits:
             continue
         else:
             if gridDict[key][0] == "fill":
                 choices = gridDict[key][1]
+                print(key, choices)
                 i_list = [i for i in range(len(choices))]
                 i_choice = np.random.choice(i_list)
                 choice = choices[i_choice]
@@ -402,13 +403,14 @@ def iterativeGridFiller(puzzle, presentDict, gridDict, numToFill):
                     numberIndexes.append(presentDict[gridNumber])
                 
                 choices = indexDeconflictor(puzzle, numberIndexes, key)
+                print(key, choices)
                 i_list = [i for i in range(len(choices))]
                 i_choice = np.random.choice(i_list)
                 choice = choices[i_choice]
                 puzzle[choice[0], choice[1]] = numToFill
                 presentDict[np.int64(key)] = np.array([choice[0], choice[1]])
             
-            gridDict = puzzleOverview(puzzle, presentDict)
+        gridDict = puzzleOverview(puzzle, presentDict)
     
     return puzzle
 
@@ -416,10 +418,8 @@ def iterativeGridFiller(puzzle, presentDict, gridDict, numToFill):
 
 for num in range(1, 2):
     dictNumPresent = gridChecker(starting_hard_puzzle, num)
-    print(dictNumPresent)
     
     gridDictForNum = puzzleOverview(starting_hard_puzzle, dictNumPresent)
-    print(gridDictForNum)
     
     starting_hard_puzzle = iterativeGridFiller(starting_hard_puzzle, dictNumPresent, gridDictForNum, num)
 
