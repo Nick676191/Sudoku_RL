@@ -1,4 +1,5 @@
 import numpy as np
+from random import sample
 """The rules of Sudoku are:
 1. Every row should have the numbers 0-9 in it only once
 2. Every column shold have the numbers 0-9 in it only once
@@ -23,6 +24,7 @@ class Sudoku:
         # initialize the sudoku grid characteristics
         self.rows = 9
         self.columns = 9
+        self.base = 3
         self.numStartVals = numStartVals
     
     def gridCreator(self):
@@ -85,10 +87,49 @@ class Sudoku:
                     self.sudokuGrid[randGridX, randGridY] = 100
         
         return self.sudokuGrid
+    
+
+    # code below for gridFillerP2 derived from https://stackoverflow.com
+    def gridFillerP2(self):
+        side = self.base**2
+        def patternCreator(r, c): return (self.base*(r%self.base)+r//self.base+c)%side
+
+        def shuffler(s): return sample(s, len(s))
+        rBase = range(self.base)
+        rows = [g*self.base + r for g in shuffler(rBase) for r in shuffler(rBase)]
+        cols = [g*self.base + c for g in shuffler(rBase) for c in shuffler(rBase)]
+        nums = shuffler(range(1, (self.base**2) + 1))
+
+        self.sudokuGrid = np.array([[nums[patternCreator(r, c)] for c in cols] for r in rows])
+
+        return self.sudokuGrid
+    
+
+    def gridReducer(self):
+        numToDelete = (self.rows * self.columns) - self.numStartVals
+        for i in range(numToDelete):
+            while True:
+                r = np.random.choice(range(self.rows))
+                c = np.random.choice(range(self.columns))
+                if self.sudokuGrid[r, c] != 100:
+                    self.sudokuGrid[r,c] = 100
+                    break
+        
+        return self.sudokuGrid
+
+
 
 if __name__ == "__main__":
     hard_puzzle = Sudoku(18)
-    hard_puzzle.gridCreator()
-    hard_puzzle_print = hard_puzzle.gridFiller()
-    print(hard_puzzle_print)
+    show_hard_puzzle = hard_puzzle.gridFillerP2()
+    print(show_hard_puzzle)
     print(hard_puzzle.checker())
+
+    show_finished = hard_puzzle.gridReducer()
+    print(show_finished)
+    print(hard_puzzle.checker())
+
+    # hard_puzzle.gridCreator()
+    # hard_puzzle_print = hard_puzzle.gridFiller()
+    # print(hard_puzzle_print)
+    # print(hard_puzzle.checker())
