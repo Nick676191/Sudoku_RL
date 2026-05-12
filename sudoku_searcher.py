@@ -10,8 +10,8 @@ one of those previous values to make the other grid cell work.
 
 # generating an easy puzzle with 30 values to start
 hard_puzzle = Sudoku(18)
-hard_puzzle.gridCreator()
-starting_hard_puzzle = hard_puzzle.gridFiller()
+hard_puzzle.gridFillerP2()
+starting_hard_puzzle = hard_puzzle.gridReducer()
 print(starting_hard_puzzle)
 
 def gridFinder(index):
@@ -279,15 +279,12 @@ def sGrid2LGrid(row, col, index):
 
 def indexStacker(positionIndexes):
     indexes = np.stack((positionIndexes[0], positionIndexes[1]), axis=-1)
-    if indexes.shape == (0, 2):
-        indexes = np.empty(2)
     return indexes
 
-def ogNumFinder(startingPuzzle):
+def ogNumFinder(startingPuzzle, num):
     startingPositions = {}
-    for num in range(1, 10):
-        numPositions = np.where(startingPuzzle == num)
-        startingPositions[num] = indexStacker(numPositions)
+    numPositions = np.where(startingPuzzle == num)
+    startingPositions[num] = indexStacker(numPositions)
     
     return startingPositions
 
@@ -418,8 +415,22 @@ def puzFill(puzzle, presentDict, choices, key, num):
     return puzzle, presentDict
 
 
-def puzzleReset():
-    print()
+def puzzleReset(puzzle, presentDict, startPositions, numToFill):
+    print("\nUSING PUZZLE RESETTER\n")
+    for num in presentDict.copy():
+        index = presentDict[num]
+        if [index[0], index[1]] in [[startIndex[0], startIndex[1]] for startIndex in startPositions[numToFill]]:
+            continue
+        else:
+            row = index[0]
+            col = index[1]
+            puzzle[row, col] = 100
+            presentDict.pop(num)
+    
+    gridDict = puzzleOverview(puzzle, presentDict)
+
+    return puzzle, presentDict, gridDict
+
 
 
 def numGridChecker(presentDict):
@@ -434,7 +445,7 @@ def numGridChecker(presentDict):
     return True
 
 
-def iterativeGridFiller(puzzle, presentDict, gridDict, numToFill):
+def iterativeGridFiller(puzzle, presentDict, gridDict, numToFill, startPositions):
     """Checking each 3x3 grid in the puzzle, filling each one, and updating the dictionary that holds all of the present indexes
     of the respective number in the sudoku puzzle currently"""
     numPresentGridDigits = presentDict.keys()
@@ -446,7 +457,7 @@ def iterativeGridFiller(puzzle, presentDict, gridDict, numToFill):
             else:
                 choices = choicesCreator(puzzle, presentDict, gridDict, key)
                 if len(choices) == 0: 
-                    puzzleReset()
+                    puzzle, presentDict, gridDict = puzzleReset(puzzle, presentDict, startPositions, numToFill)
                     break
                 else:
                     puzzle, presentDict = puzFill(puzzle, presentDict, choices, key, numToFill)
@@ -459,15 +470,18 @@ def iterativeGridFiller(puzzle, presentDict, gridDict, numToFill):
 
 
 totalPresentDict = {}
-for num in range(1, 2):
-    startPos = ogNumFinder(starting_hard_puzzle)
+for num in range(1, 3):
+    startPos = ogNumFinder(starting_hard_puzzle.copy(), num)
+    print(f"The starting positions for this number are:\n{startPos}\n")
 
     dictNumPresent = gridChecker(starting_hard_puzzle, num)
+    print(f"The presentDict object for this number at the start is:\n{dictNumPresent}\n")
     
     gridDictForNum = puzzleOverview(starting_hard_puzzle, dictNumPresent)
+    print(f"The gridDict object for this number at the start is:\n{gridDictForNum}\n")
     
-    starting_hard_puzzle, numGridDict, numPresentDict = iterativeGridFiller(starting_hard_puzzle, dictNumPresent, gridDictForNum, num)
+    starting_hard_puzzle, numGridDict, numPresentDict = iterativeGridFiller(starting_hard_puzzle, dictNumPresent, gridDictForNum, num, startPos)
     totalPresentDict[num] = numPresentDict
 
-print(starting_hard_puzzle)
-print(totalPresentDict)
+print(f"Result after pasting the specified numbers into the grid\n{starting_hard_puzzle}\n")
+print(f"Dictionary object that holds all of the index values for each respective number in the grid\n{totalPresentDict}")
