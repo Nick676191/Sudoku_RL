@@ -8,8 +8,8 @@ import numpy as np
 one of those previous values to make the other grid cell work.
 """
 
-# generating an easy puzzle with 30 values to start
-hard_puzzle = Sudoku(18)
+# generating an easy puzzle with 50 values to start
+hard_puzzle = Sudoku(50)
 hard_puzzle.gridFillerP2()
 starting_hard_puzzle = hard_puzzle.gridReducer()
 print(starting_hard_puzzle)
@@ -281,10 +281,11 @@ def indexStacker(positionIndexes):
     indexes = np.stack((positionIndexes[0], positionIndexes[1]), axis=-1)
     return indexes
 
-def ogNumFinder(startingPuzzle, num):
+def ogNumFinder(startingPuzzle):
     startingPositions = {}
-    numPositions = np.where(startingPuzzle == num)
-    startingPositions[num] = indexStacker(numPositions)
+    for num in range(1, 10):
+        numPositions = np.where(startingPuzzle == num)
+        startingPositions[num] = indexStacker(numPositions)
     
     return startingPositions
 
@@ -415,11 +416,11 @@ def puzFill(puzzle, presentDict, choices, key, num):
     return puzzle, presentDict
 
 
-def puzzleReset(puzzle, presentDict, startPositions, numToFill):
+def puzzleReset(puzzle, presentDict, startPositions):
     print("\nUSING PUZZLE RESETTER\n")
     for num in presentDict.copy():
         index = presentDict[num]
-        if [index[0], index[1]] in [[startIndex[0], startIndex[1]] for startIndex in startPositions[numToFill]]:
+        if [index[0], index[1]] in startPositions:
             continue
         else:
             row = index[0]
@@ -448,40 +449,60 @@ def numGridChecker(presentDict):
 def iterativeGridFiller(puzzle, presentDict, gridDict, numToFill, startPositions):
     """Checking each 3x3 grid in the puzzle, filling each one, and updating the dictionary that holds all of the present indexes
     of the respective number in the sudoku puzzle currently"""
-    numPresentGridDigits = presentDict.keys()
+    numPresentGridDigits = list(presentDict.keys())
+    notNumPresentGridDigits = [j for j in range(1, 10) if j not in numPresentGridDigits]
     
     while True:
+        decreaseNum = False
         for key in range(9):
             if key in numPresentGridDigits:
                 continue
             else:
                 choices = choicesCreator(puzzle, presentDict, gridDict, key)
-                if len(choices) == 0: 
-                    puzzle, presentDict, gridDict = puzzleReset(puzzle, presentDict, startPositions, numToFill)
+                if (len(choices) == 0) and (key == notNumPresentGridDigits[0]):
+                    print("WE GOT TO GO BACK TO ANOTHER NUMBER TO OPEN UP THE CURRENT NUMBER")
+                    decreaseNum = True
+                    break
+                elif len(choices) == 0: 
+                    puzzle, presentDict, gridDict = puzzleReset(puzzle, presentDict, startPositions)
                     break
                 else:
                     puzzle, presentDict = puzFill(puzzle, presentDict, choices, key, numToFill)
                 
             gridDict = puzzleOverview(puzzle, presentDict)
-        if numGridChecker(presentDict):
+        if numGridChecker(presentDict) or decreaseNum:
             break
     
-    return puzzle, gridDict, presentDict
+    return puzzle, gridDict, presentDict, decreaseNum
 
-
+startPosDict = ogNumFinder(starting_hard_puzzle.copy())
 totalPresentDict = {}
-for num in range(1, 3):
-    startPos = ogNumFinder(starting_hard_puzzle.copy(), num)
-    print(f"The starting positions for this number are:\n{startPos}\n")
+for num in range(1, 10):
+    og_num = num
+    dec_num = 0
+    while True:
+        startPos = startPosDict[num]
+        print(f"The starting positions for this number, {num}, are:\n{startPos}\n")
 
-    dictNumPresent = gridChecker(starting_hard_puzzle, num)
-    print(f"The presentDict object for this number at the start is:\n{dictNumPresent}\n")
-    
-    gridDictForNum = puzzleOverview(starting_hard_puzzle, dictNumPresent)
-    print(f"The gridDict object for this number at the start is:\n{gridDictForNum}\n")
-    
-    starting_hard_puzzle, numGridDict, numPresentDict = iterativeGridFiller(starting_hard_puzzle, dictNumPresent, gridDictForNum, num, startPos)
-    totalPresentDict[num] = numPresentDict
+        dictNumPresent = gridChecker(starting_hard_puzzle, num)
+        print(f"The presentDict object for this number at the start is:\n{dictNumPresent}\n")
+        
+        gridDictForNum = puzzleOverview(starting_hard_puzzle, dictNumPresent)
+        print(f"The gridDict object for this number at the start is:\n{gridDictForNum}\n")
+        
+        starting_hard_puzzle, numGridDict, numPresentDict, decreaseTracker = iterativeGridFiller(starting_hard_puzzle, dictNumPresent, gridDictForNum, num, startPos)
+        
+        if decreaseTracker:
+            num -= 1
+            dec_num += 1
+        else:
+            totalPresentDict[num] = numPresentDict
+        
+        if (dec_num > 0) and (num < og_num):
+            num += 1
+        
+        if (num == og_num) and (numGridChecker(numPresentDict)):
+            break
 
 print(f"Result after pasting the specified numbers into the grid\n{starting_hard_puzzle}\n")
 print(f"Dictionary object that holds all of the index values for each respective number in the grid\n{totalPresentDict}")
