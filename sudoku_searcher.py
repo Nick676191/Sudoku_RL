@@ -458,11 +458,11 @@ def finalPuzzleChecker(totalPresDict):
 def choicesCheck(choicesDict):
     return all(len(val) <= 1 for val in choicesDict.values())
 
-def iterativeGridFiller(puzzle, presentDict, gridDict, numToFill, startPositions):
+def iterativeGridFiller(puzzle, presentDict, gridDict, numToFill, startPositions, infinite_loop):
     """Checking each 3x3 grid in the puzzle, filling each one, and updating the dictionary that holds all of the present indexes
     of the respective number in the sudoku puzzle currently"""
     numPresentGridDigits = list(presentDict.keys())
-    notNumPresentGridDigits = [j for j in range(1, 10) if j not in numPresentGridDigits]
+    puzResetterTick = 0
     
     while True:
         decreaseNum = False
@@ -480,15 +480,19 @@ def iterativeGridFiller(puzzle, presentDict, gridDict, numToFill, startPositions
                     break
                 elif len(choices) == 0: 
                     puzzle, presentDict, gridDict = puzzleReset(puzzle, presentDict, startPositions)
+                    puzResetterTick += 1
+                    break
+                elif puzResetterTick > 15:
+                    infinite_loop = True
                     break
                 else:
                     puzzle, presentDict = puzFill(puzzle, presentDict, choices, key, numToFill)
                 
             gridDict = puzzleOverview(puzzle, presentDict)
-        if numGridChecker(presentDict) or decreaseNum:
+        if numGridChecker(presentDict) or decreaseNum or infinite_loop:
             break
     
-    return puzzle, gridDict, presentDict, decreaseNum
+    return puzzle, gridDict, presentDict, decreaseNum, infinite_loop
 
 startPosDict = ogNumFinder(starting_hard_puzzle.copy())
 totalPresentDict = {}
@@ -508,7 +512,7 @@ while puzzle_unfinished:
             gridDictForNum = puzzleOverview(starting_hard_puzzle, dictNumPresent)
             print(f"The gridDict object for this number at the start is:\n{gridDictForNum}\n")
             
-            starting_hard_puzzle, numGridDict, numPresentDict, decreaseTracker = iterativeGridFiller(starting_hard_puzzle, dictNumPresent, gridDictForNum, num, startPos)
+            starting_hard_puzzle, numGridDict, numPresentDict, decreaseTracker, infinite_loop = iterativeGridFiller(starting_hard_puzzle, dictNumPresent, gridDictForNum, num, startPos, infinite_loop)
             
             if decreaseTracker:
                 totalPresentDict[num] = {}
@@ -525,7 +529,7 @@ while puzzle_unfinished:
                 infinite_loop = True
                 break
             
-            if numGridChecker(totalPresentDict[og_num]):
+            if numGridChecker(totalPresentDict[og_num]) or infinite_loop:
                 break
             
         if infinite_loop:
