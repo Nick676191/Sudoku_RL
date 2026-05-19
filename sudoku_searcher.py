@@ -9,134 +9,134 @@ one of those previous values to make the other grid cell work.
 """
 
 # generating an easy puzzle with 50 values to start
-hard_puzzle = Sudoku(50)
+hard_puzzle = Sudoku(40)
 hard_puzzle.gridFillerP2()
 starting_hard_puzzle = hard_puzzle.gridReducer()
 print(starting_hard_puzzle)
 
-def gridFinder(index):
-    if index < 3:
-        return 0
-    elif 3 <= index < 6:
-        return 1
-    else:
-        return 2
+# def gridFinder(index):
+#     if index < 3:
+#         return 0
+#     elif 3 <= index < 6:
+#         return 1
+#     else:
+#         return 2
 
-# look at the values in a column, row, and 3x3 grid of a specific cell in the grid. Find the numbers that could be input into the blank cell
-def numRefiner(puzzle, row_index, col_index):
-    row_nums = puzzle[row_index][np.where(puzzle[row_index] < 10)]
-    col_nums = puzzle[:, col_index][np.where(puzzle[:, col_index] < 10)]
+# # look at the values in a column, row, and 3x3 grid of a specific cell in the grid. Find the numbers that could be input into the blank cell
+# def numRefiner(puzzle, row_index, col_index):
+#     row_nums = puzzle[row_index][np.where(puzzle[row_index] < 10)]
+#     col_nums = puzzle[:, col_index][np.where(puzzle[:, col_index] < 10)]
 
-    index_list = [slice(0, 3), slice(3, 6), slice(6, 9)]
-    iRow = gridFinder(row_index)
-    jCol = gridFinder(col_index)
-    nine_group = puzzle[index_list[iRow], index_list[jCol]].flatten()
-    grid_nums = nine_group[np.where(nine_group < 10)]
+#     index_list = [slice(0, 3), slice(3, 6), slice(6, 9)]
+#     iRow = gridFinder(row_index)
+#     jCol = gridFinder(col_index)
+#     nine_group = puzzle[index_list[iRow], index_list[jCol]].flatten()
+#     grid_nums = nine_group[np.where(nine_group < 10)]
 
-    fullNumSet = set(np.array([i for i in range(1, 10)]))
-    refine = set(np.unique(np.concat([row_nums, col_nums, grid_nums])))
+#     fullNumSet = set(np.array([i for i in range(1, 10)]))
+#     refine = set(np.unique(np.concat([row_nums, col_nums, grid_nums])))
 
-    return np.array(list(fullNumSet.difference(refine)))
+#     return np.array(list(fullNumSet.difference(refine)))
 
-def cellCounter(array, num):
-    count=0
-    for arr in array:
-        if num in arr:
-            count+=1
+# def cellCounter(array, num):
+#     count=0
+#     for arr in array:
+#         if num in arr:
+#             count+=1
     
-    return count
+#     return count
 
-def cellSearcher(puzzle, row_index, col_index):
-    """Want to look at a specific cell that is blank to compare the potential numbers that it could fill in with the other cells
-    potential values in its own respective 3x3 grid, row, and column"""
+# def cellSearcher(puzzle, row_index, col_index):
+#     """Want to look at a specific cell that is blank to compare the potential numbers that it could fill in with the other cells
+#     potential values in its own respective 3x3 grid, row, and column"""
     
-    print(f"cell searcher function has been called for the cell at ({row_index}, {col_index})")
+#     print(f"cell searcher function has been called for the cell at ({row_index}, {col_index})")
     
-    index_list = [slice(0, 3), slice(3, 6), slice(6, 9)]
-    iRow = gridFinder(row_index)
-    jCol = gridFinder(col_index)
-    nine_group = puzzle[index_list[iRow], index_list[jCol]]
-    blank_grid_nums = np.where(nine_group == 100)
-    blank_grid_nums = np.array([blank_grid_nums[0], blank_grid_nums[1]])
+#     index_list = [slice(0, 3), slice(3, 6), slice(6, 9)]
+#     iRow = gridFinder(row_index)
+#     jCol = gridFinder(col_index)
+#     nine_group = puzzle[index_list[iRow], index_list[jCol]]
+#     blank_grid_nums = np.where(nine_group == 100)
+#     blank_grid_nums = np.array([blank_grid_nums[0], blank_grid_nums[1]])
 
-    if iRow == 1:
-        new_row_vals = np.add(blank_grid_nums[0], 3)
-        blank_grid_nums[0] = new_row_vals
-    elif iRow == 2:
-        new_row_vals = np.add(blank_grid_nums[0], 6)
-        blank_grid_nums[0] = new_row_vals
+#     if iRow == 1:
+#         new_row_vals = np.add(blank_grid_nums[0], 3)
+#         blank_grid_nums[0] = new_row_vals
+#     elif iRow == 2:
+#         new_row_vals = np.add(blank_grid_nums[0], 6)
+#         blank_grid_nums[0] = new_row_vals
     
-    if jCol == 1:
-        new_col_vals = np.add(blank_grid_nums[1], 3)
-        blank_grid_nums[1] = new_col_vals
-    elif jCol == 2:
-        new_col_vals = np.add(blank_grid_nums[1], 6)
-        blank_grid_nums[1] = new_col_vals
+#     if jCol == 1:
+#         new_col_vals = np.add(blank_grid_nums[1], 3)
+#         blank_grid_nums[1] = new_col_vals
+#     elif jCol == 2:
+#         new_col_vals = np.add(blank_grid_nums[1], 6)
+#         blank_grid_nums[1] = new_col_vals
         
-    blank_grid_indexes = np.stack((blank_grid_nums[0], blank_grid_nums[1]), axis=-1)
+#     blank_grid_indexes = np.stack((blank_grid_nums[0], blank_grid_nums[1]), axis=-1)
     
-    toggle = False
-    for blank_arr in blank_grid_indexes:
-        if np.all(np.array([row_index, col_index]) == blank_arr):
-            toggle = True
-            break
+#     toggle = False
+#     for blank_arr in blank_grid_indexes:
+#         if np.all(np.array([row_index, col_index]) == blank_arr):
+#             toggle = True
+#             break
     
-    if toggle == False:
-        blank_grid_indexes = np.vstack((blank_grid_indexes, np.array([row_index, col_index])))
+#     if toggle == False:
+#         blank_grid_indexes = np.vstack((blank_grid_indexes, np.array([row_index, col_index])))
 
-    grid_possibilities = []
-    for brow, bcol in blank_grid_indexes:
-        print(brow, bcol)
-        print(row_index, col_index)
-        if (brow != row_index) or (bcol != col_index):
-            potential_nums = numRefiner(puzzle, brow, bcol)
-            grid_possibilities.append(potential_nums)
-        else:
-            specific_cell_nums = numRefiner(puzzle, brow, bcol)
-            print(f"The specific cell nums var is {specific_cell_nums}")
+#     grid_possibilities = []
+#     for brow, bcol in blank_grid_indexes:
+#         print(brow, bcol)
+#         print(row_index, col_index)
+#         if (brow != row_index) or (bcol != col_index):
+#             potential_nums = numRefiner(puzzle, brow, bcol)
+#             grid_possibilities.append(potential_nums)
+#         else:
+#             specific_cell_nums = numRefiner(puzzle, brow, bcol)
+#             print(f"The specific cell nums var is {specific_cell_nums}")
     
-    # have it choose the number for the specific cell that we are in that shows up the least in the potential cells for the grids we have chosen
-    num_occurences = [cellCounter(grid_possibilities, num) for num in specific_cell_nums]
+#     # have it choose the number for the specific cell that we are in that shows up the least in the potential cells for the grids we have chosen
+#     num_occurences = [cellCounter(grid_possibilities, num) for num in specific_cell_nums]
 
-    num_to_choose = specific_cell_nums[np.argmin(num_occurences)]  
+#     num_to_choose = specific_cell_nums[np.argmin(num_occurences)]  
 
-    return num_to_choose, specific_cell_nums
+#     return num_to_choose, specific_cell_nums
 
-def oneOffFinder(puzzle, blank_indexes):
-    oneOffList = []
-    for index in blank_indexes:
-        nums = numRefiner(puzzle, index[0], index[1])
-        if len(nums) == 1:
-            oneOffList.append({(index[0], index[1]): nums[0]})
+# def oneOffFinder(puzzle, blank_indexes):
+#     oneOffList = []
+#     for index in blank_indexes:
+#         nums = numRefiner(puzzle, index[0], index[1])
+#         if len(nums) == 1:
+#             oneOffList.append({(index[0], index[1]): nums[0]})
     
-    return oneOffList
+    # return oneOffList
 
-def oneOffFiller(puzzle, row_num, col_num, num):
-    print(f"filling the puzzle at position ({row_num, col_num}) with the only choice, {num}")
-    puzzle[row_num, col_num] = num
-    return puzzle
+# def oneOffFiller(puzzle, row_num, col_num, num):
+#     print(f"filling the puzzle at position ({row_num, col_num}) with the only choice, {num}")
+#     puzzle[row_num, col_num] = num
+#     return puzzle
 
-# I need this recursive filler to go back to a previous index if the current index doesn't have any number to choose from, then after it has chosen a number for that specific index, I need it to go back to the index that is right ahead of it
-def recursive_filler(puzzle, indexes, index_pair_num):
-    row_num = indexes[index_pair_num][0]
-    col_num = indexes[index_pair_num][1]
-    nums = numRefiner(puzzle, row_num, col_num)
-    print(f"The available numbers at position ({row_num}, {col_num}) are {nums}")
-    if len(nums) != 0:
-        choice, num_choices = cellSearcher(puzzle, row_num, col_num)
-        print(f"filling the puzzle at position ({row_num, col_num}) with {choice}")
-        puzzle[row_num, col_num] = choice
-        return (puzzle, index_pair_num)
-    else:
-        print("Going back to the the previous unfilled position")
-        return recursive_filler(puzzle, indexes, index_pair_num-1)
+# # I need this recursive filler to go back to a previous index if the current index doesn't have any number to choose from, then after it has chosen a number for that specific index, I need it to go back to the index that is right ahead of it
+# def recursive_filler(puzzle, indexes, index_pair_num):
+#     row_num = indexes[index_pair_num][0]
+#     col_num = indexes[index_pair_num][1]
+#     nums = numRefiner(puzzle, row_num, col_num)
+#     print(f"The available numbers at position ({row_num}, {col_num}) are {nums}")
+#     if len(nums) != 0:
+#         choice, num_choices = cellSearcher(puzzle, row_num, col_num)
+#         print(f"filling the puzzle at position ({row_num, col_num}) with {choice}")
+#         puzzle[row_num, col_num] = choice
+#         return (puzzle, index_pair_num)
+#     else:
+#         print("Going back to the the previous unfilled position")
+#         return recursive_filler(puzzle, indexes, index_pair_num-1)
 
-# if we have been bouncing between the same two indexes for more than 10 goes lets flag it
-def checkInfinite(index_pair_tracker):
-    if (len(set(index_pair_tracker[-15:])) < 3) and (len(index_pair_tracker) > 20):
-        return True
-    else:
-        return False
+# # if we have been bouncing between the same two indexes for more than 10 goes lets flag it
+# def checkInfinite(index_pair_tracker):
+#     if (len(set(index_pair_tracker[-15:])) < 3) and (len(index_pair_tracker) > 20):
+#         return True
+#     else:
+#         return False
 
 
 def checkFinish(puzzle):
@@ -161,11 +161,11 @@ def checkFinish(puzzle):
                 if len(np.unique(nine_check)) != len(nine_check):
                     return False
         
-        # # checking that the puzzle has been completed
-        # puzzle_sum = np.sum(puzzle)
-        # blank_spaces = np.stack((np.where(puzzle == 100)[0], np.where(puzzle == 100)[1]), axis=-1)
-        # if (puzzle_sum != 405) or (len(blank_spaces) > 0):
-        #     return False
+        # checking that the puzzle has been completed
+        puzzle_sum = np.sum(puzzle)
+        blank_spaces = np.stack((np.where(puzzle == 100)[0], np.where(puzzle == 100)[1]), axis=-1)
+        if (puzzle_sum != 405) or (len(blank_spaces) > 0):
+            return False
         
         # assuming that the grid follows the suduko rules if none of the checks above return a false value
         return True
@@ -445,6 +445,18 @@ def numGridChecker(presentDict):
     
     return True
 
+def finalPuzzleChecker(totalPresDict):
+    for num in totalPresDict:
+        if numGridChecker(totalPresDict[num]) == False:
+            return False
+    
+    if len(totalPresDict) != 9:
+        return False
+    
+    return True
+
+def choicesCheck(choicesDict):
+    return all(len(val) <= 1 for val in choicesDict.values())
 
 def iterativeGridFiller(puzzle, presentDict, gridDict, numToFill, startPositions):
     """Checking each 3x3 grid in the puzzle, filling each one, and updating the dictionary that holds all of the present indexes
@@ -454,14 +466,17 @@ def iterativeGridFiller(puzzle, presentDict, gridDict, numToFill, startPositions
     
     while True:
         decreaseNum = False
+        choices_dictionary = {}
         for key in range(9):
             if key in numPresentGridDigits:
                 continue
             else:
                 choices = choicesCreator(puzzle, presentDict, gridDict, key)
-                if (len(choices) == 0) and (key == notNumPresentGridDigits[0]):
+                choices_dictionary[key] = choices
+                if (len(choices) == 0) and (choicesCheck(choices_dictionary)):
                     print("WE GOT TO GO BACK TO ANOTHER NUMBER TO OPEN UP THE CURRENT NUMBER")
                     decreaseNum = True
+                    puzzle, presentDict, gridDict = puzzleReset(puzzle, presentDict, startPositions)
                     break
                 elif len(choices) == 0: 
                     puzzle, presentDict, gridDict = puzzleReset(puzzle, presentDict, startPositions)
@@ -477,32 +492,48 @@ def iterativeGridFiller(puzzle, presentDict, gridDict, numToFill, startPositions
 
 startPosDict = ogNumFinder(starting_hard_puzzle.copy())
 totalPresentDict = {}
-for num in range(1, 10):
-    og_num = num
-    dec_num = 0
-    while True:
-        startPos = startPosDict[num]
-        print(f"The starting positions for this number, {num}, are:\n{startPos}\n")
+puzzle_unfinished = True
+while puzzle_unfinished:
+    for num in range(1, 10):
+        infinite_loop = False
+        og_num = num
+        dec_num = 0
+        while True:
+            startPos = startPosDict[num]
+            print(f"The starting positions for this number, {num}, are:\n{startPos}\n")
 
-        dictNumPresent = gridChecker(starting_hard_puzzle, num)
-        print(f"The presentDict object for this number at the start is:\n{dictNumPresent}\n")
-        
-        gridDictForNum = puzzleOverview(starting_hard_puzzle, dictNumPresent)
-        print(f"The gridDict object for this number at the start is:\n{gridDictForNum}\n")
-        
-        starting_hard_puzzle, numGridDict, numPresentDict, decreaseTracker = iterativeGridFiller(starting_hard_puzzle, dictNumPresent, gridDictForNum, num, startPos)
-        
-        if decreaseTracker:
-            num -= 1
-            dec_num += 1
-        else:
-            totalPresentDict[num] = numPresentDict
-        
-        if (dec_num > 0) and (num < og_num):
-            num += 1
-        
-        if (num == og_num) and (numGridChecker(numPresentDict)):
+            dictNumPresent = gridChecker(starting_hard_puzzle, num)
+            print(f"The presentDict object for this number at the start is:\n{dictNumPresent}\n")
+            
+            gridDictForNum = puzzleOverview(starting_hard_puzzle, dictNumPresent)
+            print(f"The gridDict object for this number at the start is:\n{gridDictForNum}\n")
+            
+            starting_hard_puzzle, numGridDict, numPresentDict, decreaseTracker = iterativeGridFiller(starting_hard_puzzle, dictNumPresent, gridDictForNum, num, startPos)
+            
+            if decreaseTracker:
+                totalPresentDict[num] = {}
+                num -= 1
+                dec_num += 1
+                starting_hard_puzzle, numPresentDict, numGridDict = puzzleReset(starting_hard_puzzle, totalPresentDict[num], startPosDict[num])
+            else:
+                totalPresentDict[num] = numPresentDict
+            
+            if (dec_num > 0) and (numGridChecker(numPresentDict)):
+                num += 1
+            
+            if dec_num > 10:
+                infinite_loop = True
+                break
+            
+            if numGridChecker(totalPresentDict[og_num]):
+                break
+            
+        if infinite_loop:
+            for num in totalPresentDict:
+                starting_hard_puzzle, numPresentDict, numGridDict = puzzleReset(starting_hard_puzzle, totalPresentDict[num], startPosDict[num])
             break
 
-print(f"Result after pasting the specified numbers into the grid\n{starting_hard_puzzle}\n")
-print(f"Dictionary object that holds all of the index values for each respective number in the grid\n{totalPresentDict}")
+    if finalPuzzleChecker(totalPresentDict):
+        print(f"Result after pasting the specified numbers into the grid\n{starting_hard_puzzle}\n")
+        # print(f"Dictionary object that holds all of the index values for each respective number in the grid\n{totalPresentDict}")
+        break
